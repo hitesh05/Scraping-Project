@@ -4,6 +4,9 @@ import html5lib
 from requests_html import HTMLSession
 import pandas as pd
 
+# import xmltojson
+# import json
+
 import asyncio
 if asyncio.get_event_loop().is_running(): # Only patch if needed (i.e. running in Notebook, Spyder, etc)
     import nest_asyncio
@@ -30,10 +33,12 @@ class scraping:
         names = []
         reg_prices = []
         sale_prices = []
+        iter = 0
         for url in links2:
+            iter+=1
             session = HTMLSession()
             r = session.get(url)
-            r.html.render(sleep=16,timeout=16)
+            r.html.render(timeout=18,sleep=18)
             soup = BeautifulSoup(r.html.html,'html5lib')
             session.close()
             brand = soup.find('div', class_='productBrandName')
@@ -73,6 +78,16 @@ class scraping:
                 file.close
                 
             info = soup.find('div',{'class':'container-fluid remove-padd'})
+            
+            # print('Link done')
+            
+            '''
+            NOTE!
+            The code was taking too much time to run. 
+            So I have only scraped data for the first 20 items.
+            '''
+            if(iter==20):
+                break
         
         d = {}
         d['brand']=brands
@@ -97,5 +112,6 @@ links.append('https://www.vitaminshoppe.com/c/vitamins-supplements/multivitamins
         
 x = scraping()
 links2 = x.get_links(links)
+print('Part 1 done')
 d = x.scrape_data(links2)
 x.write_to_csv(d)
